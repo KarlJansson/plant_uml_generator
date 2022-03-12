@@ -48,3 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+.clang_complete
+compile_commands.json
+_build_release_

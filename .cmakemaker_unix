@@ -1,0 +1,14 @@
+cpp_version : c++17 -O3
+
+{
+	name : "tbb/tbb.h"
+  lib_dir : "tbb"
+  lib_dir : "libpthread.so"
+}
+
+{
+  name : "entity_manager.h"
+  include_dir : "../../header_libraries/slib_header_libraries/include/entity_component_system"
+  include_dir : "../../header_libraries/slib_header_libraries/include/synchronization"
+  include_dir : "../../header_libraries/slib_header_libraries/include"
+}
