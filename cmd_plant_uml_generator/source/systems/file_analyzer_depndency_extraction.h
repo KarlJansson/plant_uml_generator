@@ -31,14 +31,14 @@ class FileAnalyzerDependencyExtraction {
           for (const auto& [us, us_e] : emgr_components_r(ClassDeclaration)) {
             if (us.class_name == c.class_name) continue;
             if (file_content.find(us.class_name) != std::string::npos) {
-              auto dependee = ent_add_component(ent, Dependee<EntMgr>);
-              dependee->dependee = us_e;
+              auto& dependee = ent_add_component(ent, Dependee<EntMgr>);
+              dependee.dependee = us_e;
             }
           }
         } else {
           if (file_content.find(c.class_name) != std::string::npos) {
-            auto dependent = ent_add_component(ent, Dependent<EntMgr>);
-            dependent->dependent = file_ent;
+            auto& dependent = ent_add_component(ent, Dependent<EntMgr>);
+            dependent.dependent = file_ent;
           }
         }
       });

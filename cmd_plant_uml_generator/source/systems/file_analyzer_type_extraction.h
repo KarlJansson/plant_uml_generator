@@ -30,9 +30,9 @@ class FileAnalyzerTypeExtraction {
           if (p2 != std::string::npos && p2 < file_content.size()) {
             auto class_name = file_content.substr(p, p2 - p);
             if (IsValid(class_name, found)) {
-              auto class_decl = ent_add_component(ent, ClassDeclaration);
-              class_decl->class_name = class_name;
-              class_decl->type = type;
+              auto& class_decl = ent_add_component(ent, ClassDeclaration);
+              class_decl.class_name = class_name;
+              class_decl.type = type;
             }
             p = file_content.find(type_str, p2);
           }
