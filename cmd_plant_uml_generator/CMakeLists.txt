@@ -6,9 +6,9 @@ cmake_minimum_required(VERSION 3.6)
 set(cpp_files
   ./source/main.cc
   ./source/main_entry.h
-  ./source/components/generate_diagram.h
   ./source/components/dependent.h
   ./source/components/class_declaration.h
+  ./source/components/dependee.h
   ./source/components/directory_list.h
   ./source/components/file_path.h
   ./source/systems/directory_crawler.h
@@ -29,9 +29,9 @@ source_group(source/systems FILES
 )
 
 source_group(source/components FILES
-  ./source/components/generate_diagram.h
   ./source/components/dependent.h
   ./source/components/class_declaration.h
+  ./source/components/dependee.h
   ./source/components/directory_list.h
   ./source/components/file_path.h
 )
@@ -45,6 +45,7 @@ add_executable(plant_uml_generator ${cpp_files})
 include_directories(plant_uml_generator
   ../../header_libraries/slib_header_libraries/include
   ../../header_libraries/slib_header_libraries/include/entity_component_system
+  ../../header_libraries/slib_header_libraries/include/file_system
   ../../header_libraries/slib_header_libraries/include/synchronization
   ./source
   ./source/components

@@ -11,4 +11,5 @@ cpp_version : c++17 -O3
   include_dir : "../../header_libraries/slib_header_libraries/include/entity_component_system"
   include_dir : "../../header_libraries/slib_header_libraries/include/synchronization"
   include_dir : "../../header_libraries/slib_header_libraries/include"
+  include_dir : "../../header_libraries/slib_header_libraries/include/file_system"
 }

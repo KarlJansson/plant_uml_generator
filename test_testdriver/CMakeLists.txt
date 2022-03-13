@@ -18,6 +18,7 @@ include_directories(testdriver
   ${GTEST_INCLUDE_DIRS}
   ../../header_libraries/slib_header_libraries/include
   ../../header_libraries/slib_header_libraries/include/entity_component_system
+  ../../header_libraries/slib_header_libraries/include/file_system
   ../../header_libraries/slib_header_libraries/include/synchronization
   ../cmd_plant_uml_generator/source
   ../cmd_plant_uml_generator/source/components
