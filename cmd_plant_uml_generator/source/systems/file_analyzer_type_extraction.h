@@ -15,13 +15,12 @@
 
 class FileAnalyzerTypeExtraction {
  public:
-  template <typename Ent, typename EntMgr, typename SysMgr>
-  void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
-    auto class_declarations = emgr_components_r(ent_mgr, FilePath);
+  system_step() {
+    auto class_declarations = emgr_components_r(FilePath);
     tbb_templates::parallel_for(class_declarations, [&](size_t i) {
-      auto [c, ent] = class_declarations[i];
+      const auto& [c, ent] = class_declarations[i];
       std::set<std::string> found;
-      auto file_content = fsu::FileReader::FileToString(c->file_path);
+      auto file_content = fsu::FileReader::FileToString(c.file_path);
       auto find_types = [&](const std::string& type_str,
                             const std::string& type) {
         auto p = file_content.find(type_str);
@@ -31,7 +30,7 @@ class FileAnalyzerTypeExtraction {
           if (p2 != std::string::npos && p2 < file_content.size()) {
             auto class_name = file_content.substr(p, p2 - p);
             if (IsValid(class_name, found)) {
-              auto class_decl = ent_add_component((*ent), ClassDeclaration);
+              auto class_decl = ent_add_component(ent, ClassDeclaration);
               class_decl->class_name = class_name;
               class_decl->type = type;
             }
@@ -43,8 +42,8 @@ class FileAnalyzerTypeExtraction {
       find_types("struct ", "enum");
     });
 
-    smgr_remove_system(sys_mgr, FileAnalyzerTypeExtraction);
-    smgr_add_system(sys_mgr, FileAnalyzerDependencyExtraction);
+    smgr_remove_system(FileAnalyzerTypeExtraction);
+    smgr_add_system(FileAnalyzerDependencyExtraction);
   }
 
   void Init() {}

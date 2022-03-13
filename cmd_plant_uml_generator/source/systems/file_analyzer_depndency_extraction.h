@@ -17,36 +17,35 @@
 
 class FileAnalyzerDependencyExtraction {
  public:
-  template <typename Ent, typename EntMgr, typename SysMgr>
-  void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
-    auto class_declarations = emgr_components_r(ent_mgr, ClassDeclaration);
+  system_step() {
+    auto class_declarations = emgr_components_r(ClassDeclaration);
     tbb_templates::parallel_for(class_declarations, [&](auto i) {
-      auto [c, ent] = class_declarations[i];
-      auto fp = ent_component_r((*ent), FilePath);
+      const auto& [c, ent] = class_declarations[i];
+      auto fp = ent_component_r(ent, FilePath);
 
-      auto file_paths = emgr_components_r(ent_mgr, FilePath);
+      auto file_paths = emgr_components_r(FilePath);
       tbb_templates::parallel_for(file_paths, [&](auto i) {
-        auto [file, file_ent] = file_paths[i];
-        auto file_content = fsu::FileReader::FileToString(file->file_path);
-        if (fp->file_name == file->file_name) {
-          for (auto [us, us_e] : emgr_components_r(ent_mgr, ClassDeclaration)) {
-            if (us->class_name == c->class_name) continue;
-            if (file_content.find(us->class_name) != std::string::npos) {
-              auto dependee = ent_add_component((*ent), Dependee<EntMgr>);
-              dependee->dependee = (*us_e);
+        const auto& [file, file_ent] = file_paths[i];
+        auto file_content = fsu::FileReader::FileToString(file.file_path);
+        if (fp->file_name == file.file_name) {
+          for (const auto& [us, us_e] : emgr_components_r(ClassDeclaration)) {
+            if (us.class_name == c.class_name) continue;
+            if (file_content.find(us.class_name) != std::string::npos) {
+              auto dependee = ent_add_component(ent, Dependee<EntMgr>);
+              dependee->dependee = us_e;
             }
           }
         } else {
-          if (file_content.find(c->class_name) != std::string::npos) {
-            auto dependent = ent_add_component((*ent), Dependent<EntMgr>);
-            dependent->dependent = (*file_ent);
+          if (file_content.find(c.class_name) != std::string::npos) {
+            auto dependent = ent_add_component(ent, Dependent<EntMgr>);
+            dependent->dependent = file_ent;
           }
         }
       });
     });
 
-    smgr_remove_system(sys_mgr, FileAnalyzerDependencyExtraction);
-    smgr_add_system(sys_mgr, PlantUmlPrinter);
+    smgr_remove_system(FileAnalyzerDependencyExtraction);
+    smgr_add_system(PlantUmlPrinter);
   }
 
   void Init() {}

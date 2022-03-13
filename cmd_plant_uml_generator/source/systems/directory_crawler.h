@@ -13,11 +13,10 @@
 
 class DirectoryCrawler {
  public:
-  template <typename Ent, typename EntMgr, typename SysMgr>
-  void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
+  system_step() {
     bool abort{true};
-    for (auto [c, ent] : emgr_added_components_r(ent_mgr, DirectoryList)) {
-      for (auto& str : c->directories) {
+    for (const auto& [c, ent] : emgr_added_components_r(DirectoryList)) {
+      for (auto& str : c.directories) {
         if (!std::filesystem::exists(str)) continue;
         abort = false;
         std::unordered_map<std::string, Ent> file_ents;
@@ -40,15 +39,15 @@ class DirectoryCrawler {
         }
       }
 
-      smgr_remove_system(sys_mgr, DirectoryCrawler);
+      smgr_remove_system(DirectoryCrawler);
     }
 
     if (abort) {
       std::cout << "No valid directories" << std::endl;
-      auto exit_code = emgr_add_component(ent_mgr, int);
+      auto exit_code = emgr_add_component(int);
       *exit_code = 0;
     } else
-      smgr_add_system(sys_mgr, FileAnalyzerTypeExtraction);
+      smgr_add_system(FileAnalyzerTypeExtraction);
   }
 
   void Init() {}

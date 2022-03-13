@@ -15,8 +15,7 @@
 
 class PlantUmlPrinter {
  public:
-  template <typename Ent, typename EntMgr, typename SysMgr>
-  void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
+  system_step() {
     std::string header =
         "@startuml\n"
         "hide members\n"
@@ -40,26 +39,26 @@ class PlantUmlPrinter {
       }
     };
 
-    for (auto [cls, cls_ent] : emgr_components_r(ent_mgr, ClassDeclaration)) {
+    for (const auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
       std::string single = header;
-      single += "title <using> " + cls->class_name + " <used by>\n\n";
+      single += "title <using> " + cls.class_name + " <used by>\n\n";
 
       individual_types.clear();
       individual_connections.clear();
 
-      for (auto dep_ent : ent_components_w((*cls_ent), Dependent<EntMgr>))
-        if (auto d = ent_component_r(dep_ent->dependent, ClassDeclaration); d)
-          create_entries(cls->type, d->type, cls->class_name, d->class_name);
+      for (auto& dep_ent : ent_components_w(cls_ent, Dependent<EntMgr>))
+        if (auto d = ent_component_r(dep_ent.dependent, ClassDeclaration); d)
+          create_entries(cls.type, d->type, cls.class_name, d->class_name);
 
-      for (auto dep_ent : ent_components_w((*cls_ent), Dependee<EntMgr>))
-        if (auto d = ent_component_r(dep_ent->dependee, ClassDeclaration); d)
-          create_entries(d->type, cls->type, d->class_name, cls->class_name);
+      for (auto& dep_ent : ent_components_w(cls_ent, Dependee<EntMgr>))
+        if (auto d = ent_component_r(dep_ent.dependee, ClassDeclaration); d)
+          create_entries(d->type, cls.type, d->class_name, cls.class_name);
 
       for (auto& str : individual_types) single += str;
       single += "\n";
       for (auto& str : individual_connections) single += str;
       single += "@enduml";
-      individual[cls->class_name] = single;
+      individual[cls.class_name] = single;
     }
 
     std::string output = header;
@@ -71,10 +70,10 @@ class PlantUmlPrinter {
     std::cout << output << std::endl;
     for (auto& [cls_name, out] : individual) std::cout << out << std::endl;
 
-    auto exit_code = emgr_add_component(ent_mgr, int);
+    auto exit_code = emgr_add_component(int);
     *exit_code = 0;
 
-    smgr_remove_system(sys_mgr, PlantUmlPrinter);
+    smgr_remove_system(PlantUmlPrinter);
   }
 
   void Init() {}
