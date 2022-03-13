@@ -13,9 +13,6 @@
 
 class DirectoryCrawler {
  public:
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
-
   template <typename Ent, typename EntMgr, typename SysMgr>
   void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
     bool abort{true};
@@ -53,4 +50,7 @@ class DirectoryCrawler {
     } else
       smgr_add_system(sys_mgr, FileAnalyzerTypeExtraction);
   }
+
+  void Init() {}
+  std::vector<std::type_index> Dependencies() { return {}; }
 };

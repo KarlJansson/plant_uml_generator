@@ -15,9 +15,6 @@
 
 class PlantUmlPrinter {
  public:
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
-
   template <typename Ent, typename EntMgr, typename SysMgr>
   void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
     std::string header =
@@ -79,4 +76,7 @@ class PlantUmlPrinter {
 
     smgr_remove_system(sys_mgr, PlantUmlPrinter);
   }
+
+  void Init() {}
+  std::vector<std::type_index> Dependencies() { return {}; }
 };

@@ -17,9 +17,6 @@
 
 class FileAnalyzerDependencyExtraction {
  public:
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
-
   template <typename Ent, typename EntMgr, typename SysMgr>
   void Step(EntMgr& ent_mgr, SysMgr& sys_mgr) {
     auto class_declarations = emgr_components_r(ent_mgr, ClassDeclaration);
@@ -51,4 +48,7 @@ class FileAnalyzerDependencyExtraction {
     smgr_remove_system(sys_mgr, FileAnalyzerDependencyExtraction);
     smgr_add_system(sys_mgr, PlantUmlPrinter);
   }
+
+  void Init() {}
+  std::vector<std::type_index> Dependencies() { return {}; }
 };
