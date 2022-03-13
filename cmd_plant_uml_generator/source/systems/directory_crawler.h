@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "directory_list.h"
-#include "file_analyzer.h"
+#include "file_analyzer_type_extraction.h"
 #include "file_path.h"
 
 class DirectoryCrawler {
@@ -51,6 +51,6 @@ class DirectoryCrawler {
       auto exit_code = emgr_add_component(ent_mgr, int);
       *exit_code = 0;
     } else
-      smgr_add_system(sys_mgr, FileAnalyzer);
+      smgr_add_system(sys_mgr, FileAnalyzerTypeExtraction);
   }
 };

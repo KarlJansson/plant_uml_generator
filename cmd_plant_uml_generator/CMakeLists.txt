@@ -13,7 +13,8 @@ set(cpp_files
   ./source/components/file_path.h
   ./source/systems/directory_crawler.h
   ./source/systems/plant_uml_printer.h
-  ./source/systems/file_analyzer.h
+  ./source/systems/file_analyzer_type_extraction.h
+  ./source/systems/file_analyzer_depndency_extraction.h
   ./test/test_main_entry.h
 )
 
@@ -25,7 +26,8 @@ source_group(source FILES
 source_group(source/systems FILES
   ./source/systems/directory_crawler.h
   ./source/systems/plant_uml_printer.h
-  ./source/systems/file_analyzer.h
+  ./source/systems/file_analyzer_type_extraction.h
+  ./source/systems/file_analyzer_depndency_extraction.h
 )
 
 source_group(source/components FILES
