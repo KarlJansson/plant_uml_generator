@@ -70,8 +70,8 @@ class PlantUmlPrinter {
     std::cout << output << std::endl;
     for (auto& [cls_name, out] : individual) std::cout << out << std::endl;
 
-    auto exit_code = emgr_add_component(int);
-    *exit_code = 0;
+    auto& exit_code = emgr_add_component(int);
+    exit_code = 0;
 
     smgr_remove_system(PlantUmlPrinter);
   }

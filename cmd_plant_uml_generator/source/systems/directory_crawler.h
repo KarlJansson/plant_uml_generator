@@ -44,8 +44,8 @@ class DirectoryCrawler {
 
     if (abort) {
       std::cout << "No valid directories" << std::endl;
-      auto exit_code = emgr_add_component(int);
-      *exit_code = 0;
+      auto& exit_code = emgr_add_component(int);
+      exit_code = 0;
     } else
       smgr_add_system(FileAnalyzerTypeExtraction);
   }

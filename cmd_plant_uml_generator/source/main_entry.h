@@ -16,8 +16,8 @@ class MainEntry {
     ecs::EntityManager_t ent_mgr;
     ecs::SystemManager_t sys_mgr;
 
-    auto list = ent_mgr.AddComponent<DirectoryList, ecs::Entity_t>();
-    list->directories = args;
+    auto& list = ent_mgr.AddComponent<DirectoryList, ecs::Entity_t>();
+    list.directories = args;
 
     sys_mgr.AddSystem<DirectoryCrawler>();
 
