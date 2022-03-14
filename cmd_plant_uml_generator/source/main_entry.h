@@ -7,7 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "directory_crawler.h"
+#include "argument_parser.h"
+#include "arguments.h"
 #include "directory_list.h"
 
 class MainEntry {
@@ -16,10 +17,10 @@ class MainEntry {
     ecs::EntityManager_t ent_mgr;
     ecs::SystemManager_t sys_mgr;
 
-    auto& list = ent_mgr.AddComponent<DirectoryList, ecs::Entity_t>();
-    list.directories = args;
+    auto& arg_comp = ent_mgr.AddComponent<Arguments, ecs::Entity_t>();
+    arg_comp.args = args;
 
-    sys_mgr.AddSystem<DirectoryCrawler>();
+    sys_mgr.AddSystem<ArgumentParser>();
 
     ent_mgr.SyncSwap();
     sys_mgr.SyncSystems();

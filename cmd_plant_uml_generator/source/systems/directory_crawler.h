@@ -14,11 +14,9 @@
 class DirectoryCrawler {
  public:
   system_step() {
-    bool abort{true};
-    for (const auto& [c, ent] : emgr_added_components_r(DirectoryList)) {
+    for (const auto& [c, ent] : emgr_components_r(DirectoryList)) {
       for (auto& str : c.directories) {
         if (!std::filesystem::exists(str)) continue;
-        abort = false;
         std::unordered_map<std::string, Ent> file_ents;
         for (auto& p : std::filesystem::recursive_directory_iterator(str)) {
           if (std::filesystem::is_regular_file(p)) {
@@ -38,16 +36,10 @@ class DirectoryCrawler {
           }
         }
       }
-
-      smgr_remove_system(DirectoryCrawler);
     }
 
-    if (abort) {
-      std::cout << "No valid directories" << std::endl;
-      auto& exit_code = emgr_add_component(int);
-      exit_code = 0;
-    } else
-      smgr_add_system(FileAnalyzerTypeExtraction);
+    smgr_remove_system(DirectoryCrawler);
+    smgr_add_system(FileAnalyzerTypeExtraction);
   }
 
   void Init() {}

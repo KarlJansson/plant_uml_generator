@@ -6,11 +6,15 @@ cmake_minimum_required(VERSION 3.6)
 set(cpp_files
   ./source/main.cc
   ./source/main_entry.h
+  ./source/components/settings.h
+  ./source/components/ignore_patterns.h
   ./source/components/dependent.h
   ./source/components/class_declaration.h
   ./source/components/dependee.h
   ./source/components/directory_list.h
   ./source/components/file_path.h
+  ./source/components/arguments.h
+  ./source/systems/argument_parser.h
   ./source/systems/directory_crawler.h
   ./source/systems/plant_uml_printer.h
   ./source/systems/file_analyzer_type_extraction.h
@@ -24,6 +28,7 @@ source_group(source FILES
 )
 
 source_group(source/systems FILES
+  ./source/systems/argument_parser.h
   ./source/systems/directory_crawler.h
   ./source/systems/plant_uml_printer.h
   ./source/systems/file_analyzer_type_extraction.h
@@ -31,11 +36,14 @@ source_group(source/systems FILES
 )
 
 source_group(source/components FILES
+  ./source/components/settings.h
+  ./source/components/ignore_patterns.h
   ./source/components/dependent.h
   ./source/components/class_declaration.h
   ./source/components/dependee.h
   ./source/components/directory_list.h
   ./source/components/file_path.h
+  ./source/components/arguments.h
 )
 
 source_group(test FILES
