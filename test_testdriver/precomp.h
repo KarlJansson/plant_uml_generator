@@ -2,6 +2,7 @@
 
 
 #include <tbb/tbb.h>
+#include <limits>
 #include "entity.h"
 #include <string>
 #include <filesystem>

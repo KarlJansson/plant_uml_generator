@@ -29,6 +29,7 @@ class PlantUmlPrinter {
     bool print_individual{false};
     bool print_individual_file{false};
     auto settings = emgr_component_r(Settings);
+    max_dependents_ = settings->max_dependents;
     if (settings->flags.find(Settings::Flag::kPrintFull) !=
         std::end(settings->flags))
       print_full = true;
@@ -46,18 +47,18 @@ class PlantUmlPrinter {
       std::string full;
       std::unordered_set<std::string> added;
       for (const auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
-        std::unordered_set<const Ent*> visited_ent;
+        std::unordered_set<std::string> visited;
         Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str2 + " ..> " + str1 + "\n";
             });
 
-        visited_ent.erase(&cls_ent);
+        visited.erase(cls.class_name);
 
         Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str1 + " ..> " + str2 + "\n";
@@ -76,19 +77,19 @@ class PlantUmlPrinter {
         single += "title <used> " + cls.class_name + " <using>\n\n";
 
         std::unordered_set<std::string> added;
-        std::unordered_set<const Ent*> visited_ent;
+        std::unordered_set<std::string> visited;
 
         Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
               return str2 + " ..> " + str1 + "\n";
             });
 
-        visited_ent.erase(&cls_ent);
+        visited.erase(cls.class_name);
 
         Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
               return str1 + " ..> " + str2 + "\n";
@@ -119,17 +120,19 @@ class PlantUmlPrinter {
 
   template <typename Ent, typename EntMgr, typename SysMgr, typename Dep>
   void Crawl(Ent& focus, const ClassDeclaration* cls, EntMgr& ent_mgr,
-             SysMgr& sys_mgr, std::unordered_set<const Ent*>& visited,
+             SysMgr& sys_mgr, std::unordered_set<std::string>& visited,
              size_t depth, size_t max_depth,
              std::unordered_set<std::string>& added, std::string& out,
              std::function<std::string(const std::string&, const std::string&)>
                  connection_entry) {
     if (depth == max_depth) return;
-    if (visited.find(&focus) != std::end(visited)) return;
-    visited.insert(&focus);
+    if (visited.find(cls->class_name) != std::end(visited)) return;
+    visited.insert(cls->class_name);
 
     for (auto& dep_ent : ent_components_w(focus, Dep)) {
-      for (auto& d : ent_components_w(dep_ent.entity, ClassDeclaration)) {
+      auto dependent = ent_components_w(dep_ent.entity, ClassDeclaration);
+      if (dependent.size() > max_dependents_) continue;
+      for (auto& d : dependent) {
         if (CheckIgnore(cls->class_name + d.class_name)) {
           Crawl<Ent, EntMgr, SysMgr, Dep>(dep_ent.entity, &d, ent_mgr, sys_mgr,
                                           visited, depth + 1, max_depth, added,
@@ -164,5 +167,6 @@ class PlantUmlPrinter {
   std::vector<std::type_index> Dependencies() { return {}; }
 
  private:
+  size_t max_dependents_;
   std::vector<std::string> ignore_patterns_;
 };

@@ -30,6 +30,10 @@ class ArgumentParser {
              [&](const std::string& arg) {
                if (!arg.empty()) ignore_patterns.patterns.emplace_back(arg);
              }},
+            {"-md",
+             [&](const std::string& arg) {
+               if (!arg.empty()) settings.max_dependents = std::stoi(arg);
+             }},
             {"-el",
              [&](const std::string& arg) {
                if (!arg.empty()) settings.expansion_level = std::stoi(arg);
@@ -68,6 +72,7 @@ class ArgumentParser {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"
+                   "  -md <max_dep> - Set max dependents to continue\n"
                    "  -el <expand_steps> - Expand individual diargrams\n"
                    "  -pi - Print individual collaboration diagrams for types\n"
                    "  -pif - Print individual collaboration diagrams to file\n"
