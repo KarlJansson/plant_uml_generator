@@ -38,6 +38,10 @@ class ArgumentParser {
              [&](const std::string& arg) {
                settings.flags.insert(Settings::Flag::kPrintIndividual);
              }},
+            {"-pif",
+             [&](const std::string& arg) {
+               settings.flags.insert(Settings::Flag::kPrintIndividualFile);
+             }},
             {"-pf", [&](const std::string& arg) {
                settings.flags.insert(Settings::Flag::kPrintFull);
              }}};
@@ -64,7 +68,9 @@ class ArgumentParser {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"
+                   "  -el <expand_steps> - Expand individual diargrams\n"
                    "  -pi - Print individual collaboration diagrams for types\n"
+                   "  -pif - Print individual collaboration diagrams to file\n"
                    "  -pf - Print full collaboration diagram for found types\n"
                 << std::endl;
       auto& exit_code = emgr_add_component(int);

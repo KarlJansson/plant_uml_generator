@@ -5,7 +5,9 @@
 #include "entity.h"
 #include <string>
 #include <filesystem>
+#include <list>
 #include <map>
+#include <mutex>
 #include <set>
 #include <entity_manager.h>
 #include <system_manager.h>
