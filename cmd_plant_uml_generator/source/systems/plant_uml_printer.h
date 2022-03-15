@@ -39,48 +39,31 @@ class PlantUmlPrinter {
         std::end(settings->flags))
       print_individual_file = true;
 
-    auto create_entries = [](auto& class_type, auto& dep_type, auto& class_name,
-                             auto& dep_name, auto& types, auto& connections) {
-      types.insert(dep_type + " " + dep_name + "\n");
-      types.insert(class_type + " " + class_name + "\n");
-      connections.insert(class_name + " ..> " + dep_name + "\n");
-    };
-
     auto ignore_patterns = emgr_component_r(IgnorePatterns);
-    auto check_ignore = [&](auto check) -> bool {
-      if (!ignore_patterns->patterns.empty())
-        for (auto& p : ignore_patterns->patterns)
-          if (check.find(p) != std::string::npos) return false;
-      return true;
-    };
+    ignore_patterns_ = ignore_patterns->patterns;
 
     if (print_full) {
-      std::set<std::string> full_types;
-      std::set<std::string> full_connections;
+      std::string full;
+      std::unordered_set<std::string> added;
       for (const auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
-        for (auto& dep_ent : ent_components_w(cls_ent, Dependent<EntMgr>)) {
-          for (auto& d :
-               ent_components_r(dep_ent.dependent, ClassDeclaration)) {
-            if (d.class_name != cls.class_name)
-              if (check_ignore(cls.class_name + d.class_name))
-                create_entries(cls.type, d.type, cls.class_name, d.class_name,
-                               full_types, full_connections);
-          }
-        }
-        for (auto& dep_ent : ent_components_w(cls_ent, Dependee<EntMgr>)) {
-          for (auto& d : ent_components_r(dep_ent.dependee, ClassDeclaration)) {
-            if (d.class_name != cls.class_name)
-              if (check_ignore(cls.class_name + d.class_name))
-                create_entries(d.type, cls.type, d.class_name, cls.class_name,
-                               full_types, full_connections);
-          }
-        }
+        std::unordered_set<const Ent*> visited_ent;
+        Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
+            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            settings->expansion_level, added, full,
+            [](auto& str1, auto& str2) -> auto {
+              return str2 + " ..> " + str1 + "\n";
+            });
+
+        visited_ent.erase(&cls_ent);
+
+        Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
+            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            settings->expansion_level, added, full,
+            [](auto& str1, auto& str2) -> auto {
+              return str1 + " ..> " + str2 + "\n";
+            });
       }
-      std::cout << header;
-      for (auto& str : full_types) std::cout << str;
-      std::cout << "\n";
-      for (auto& str : full_connections) std::cout << str;
-      std::cout << "@enduml\n";
+      std::cout << header << full << "@enduml\n";
     }
 
     if (print_individual || print_individual_file) {
@@ -89,75 +72,43 @@ class PlantUmlPrinter {
       auto individual_processing = [&](auto i) {
         const auto& [cls, cls_ent] = type_declarations[i];
         std::string single = header;
-        single += "title <using> " + cls.class_name + " <used by>\n\n";
 
-        std::set<std::string> individual_types;
-        std::set<std::string> individual_connections;
+        single += "title <used> " + cls.class_name + " <using>\n\n";
 
-        std::list<std::pair<ecs::Entity<EntMgr>, ClassDeclaration>>
-            open_list_dependent{{cls_ent, cls}};
-        std::list<std::pair<ecs::Entity<EntMgr>, ClassDeclaration>>
-            open_list_dependee{{cls_ent, cls}};
-        std::unordered_set<std::string> visited{cls.class_name};
-        for (size_t i = 0; i < settings->expansion_level; ++i) {
-          for (size_t take = open_list_dependent.size(); take != 0; --take) {
-            auto [focus_ent, focus] = open_list_dependent.front();
-            open_list_dependent.pop_front();
-            for (auto& dep_ent :
-                 ent_components_w(focus_ent, Dependent<EntMgr>)) {
-              for (auto& d :
-                   ent_components_r(dep_ent.dependent, ClassDeclaration)) {
-                if (d.class_name != focus.class_name &&
-                    visited.find(d.class_name) == std::end(visited)) {
-                  visited.emplace(d.class_name);
-                  if (check_ignore(focus.class_name + d.class_name)) {
-                    open_list_dependent.emplace_back(dep_ent.dependent, d);
-                    create_entries(focus.type, d.type, focus.class_name,
-                                   d.class_name, individual_types,
-                                   individual_connections);
-                  }
-                }
-              }
-            }
-          }
+        std::unordered_set<std::string> added;
+        std::unordered_set<const Ent*> visited_ent;
 
-          for (size_t take = open_list_dependee.size(); take != 0; --take) {
-            auto [focus_ent, focus] = open_list_dependee.front();
-            open_list_dependee.pop_front();
-            for (auto& dep_ent :
-                 ent_components_w(focus_ent, Dependee<EntMgr>)) {
-              for (auto& d :
-                   ent_components_r(dep_ent.dependee, ClassDeclaration)) {
-                if (d.class_name != focus.class_name &&
-                    visited.find(d.class_name) == std::end(visited)) {
-                  visited.emplace(d.class_name);
-                  open_list_dependee.emplace_back(dep_ent.dependee, d);
-                  create_entries(d.type, focus.type, d.class_name,
-                                 focus.class_name, individual_types,
-                                 individual_connections);
-                }
-              }
-            }
-          }
-        }
+        Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
+            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            settings->expansion_level, added, single,
+            [](auto& str1, auto& str2) -> auto {
+              return str2 + " ..> " + str1 + "\n";
+            });
 
-        for (auto& str : individual_types) single += str;
-        single += "\n";
-        for (auto& str : individual_connections) single += str;
-        single += "@enduml";
+        visited_ent.erase(&cls_ent);
+
+        Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
+            cls_ent, &cls, ent_mgr, sys_mgr, visited_ent, 0,
+            settings->expansion_level, added, single,
+            [](auto& str1, auto& str2) -> auto {
+              return str1 + " ..> " + str2 + "\n";
+            });
+        single += "@enduml\n";
+
         if (print_individual) {
           std::lock_guard lock(print_mtx);
-          std::cout << single << std::endl;
+          std::cout << single;
         }
+
         if (print_individual_file) {
           std::ofstream out("./" + cls.class_name + ".puml");
           out << single;
         }
       };
 
-      for (size_t i = 0; i < type_declarations.size(); ++i)
-        individual_processing(i);
-      // tbb_templates::parallel_for(type_declarations, individual_processing);
+      // for (size_t i = 0; i < type_declarations.size(); ++i)
+      //   individual_processing(i);
+      tbb_templates::parallel_for(type_declarations, individual_processing);
     }
 
     auto& exit_code = emgr_add_component(int);
@@ -166,6 +117,52 @@ class PlantUmlPrinter {
     smgr_remove_system(PlantUmlPrinter);
   }
 
+  template <typename Ent, typename EntMgr, typename SysMgr, typename Dep>
+  void Crawl(Ent& focus, const ClassDeclaration* cls, EntMgr& ent_mgr,
+             SysMgr& sys_mgr, std::unordered_set<const Ent*>& visited,
+             size_t depth, size_t max_depth,
+             std::unordered_set<std::string>& added, std::string& out,
+             std::function<std::string(const std::string&, const std::string&)>
+                 connection_entry) {
+    if (depth == max_depth) return;
+    if (visited.find(&focus) != std::end(visited)) return;
+    visited.insert(&focus);
+
+    for (auto& dep_ent : ent_components_w(focus, Dep)) {
+      for (auto& d : ent_components_w(dep_ent.entity, ClassDeclaration)) {
+        if (CheckIgnore(cls->class_name + d.class_name)) {
+          Crawl<Ent, EntMgr, SysMgr, Dep>(dep_ent.entity, &d, ent_mgr, sys_mgr,
+                                          visited, depth + 1, max_depth, added,
+                                          out, connection_entry);
+
+          if (d.class_name != cls->class_name) {
+            CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
+            CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
+            CheckAndAdd(added, connection_entry(cls->class_name, d.class_name),
+                        out);
+          }
+        }
+      }
+    }
+  }
+
+  void CheckAndAdd(std::unordered_set<std::string>& set, std::string str,
+                   std::string& out) {
+    if (set.find(str) == std::end(set)) {
+      set.insert(str);
+      out += str;
+    }
+  }
+
+  bool CheckIgnore(std::string check) {
+    for (auto& p : ignore_patterns_)
+      if (check.find(p) != std::string::npos) return false;
+    return true;
+  }
+
   void Init() {}
   std::vector<std::type_index> Dependencies() { return {}; }
+
+ private:
+  std::vector<std::string> ignore_patterns_;
 };

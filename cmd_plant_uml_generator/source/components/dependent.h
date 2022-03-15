@@ -4,5 +4,5 @@
 
 template <typename Ent>
 struct Dependent {
-  ecs::Entity<Ent> dependent;
+  ecs::Entity<Ent> entity;
 };
