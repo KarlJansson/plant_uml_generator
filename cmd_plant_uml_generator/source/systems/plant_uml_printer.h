@@ -49,20 +49,20 @@ class PlantUmlPrinter {
       for (const auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
         std::unordered_set<std::string> visited;
         Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
-            settings->expansion_level, added, full,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0, 1, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str2 + " ..> " + str1 + "\n";
-            });
+            },
+            cls_ent);
 
         visited.erase(cls.class_name);
 
         Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
-            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
-            settings->expansion_level, added, full,
+            cls_ent, &cls, ent_mgr, sys_mgr, visited, 0, 1, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str1 + " ..> " + str2 + "\n";
-            });
+            },
+            cls_ent);
       }
       std::cout << header << full << "@enduml\n";
     }
@@ -84,7 +84,8 @@ class PlantUmlPrinter {
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
               return str2 + " ..> " + str1 + "\n";
-            });
+            },
+            cls_ent);
 
         visited.erase(cls.class_name);
 
@@ -93,7 +94,8 @@ class PlantUmlPrinter {
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
               return str1 + " ..> " + str2 + "\n";
-            });
+            },
+            cls_ent);
         single += "@enduml\n";
 
         if (print_individual) {
@@ -118,31 +120,38 @@ class PlantUmlPrinter {
     smgr_remove_system(PlantUmlPrinter);
   }
 
+  void Init() {}
+  std::vector<std::type_index> Dependencies() { return {}; }
+
+ private:
   template <typename Ent, typename EntMgr, typename SysMgr, typename Dep>
   void Crawl(Ent& focus, const ClassDeclaration* cls, EntMgr& ent_mgr,
              SysMgr& sys_mgr, std::unordered_set<std::string>& visited,
              size_t depth, size_t max_depth,
              std::unordered_set<std::string>& added, std::string& out,
              std::function<std::string(const std::string&, const std::string&)>
-                 connection_entry) {
+                 connection_entry,
+             Ent& origin) {
     if (depth == max_depth) return;
     if (visited.find(cls->class_name) != std::end(visited)) return;
     visited.insert(cls->class_name);
 
-    for (auto& dep_ent : ent_components_w(focus, Dep)) {
-      auto dependent = ent_components_w(dep_ent.entity, ClassDeclaration);
-      if (dependent.size() > max_dependents_) continue;
-      for (auto& d : dependent) {
+    auto dependencies = ent_components_r(focus, Dep);
+    if (dependencies.size() > max_dependents_ && focus != origin) return;
+    for (auto& dep_ent : dependencies) {
+      auto& dep_ent_casted = const_cast<ecs::Entity<EntMgr>&>(dep_ent.entity);
+      for (auto& d : ent_components_r(dep_ent_casted, ClassDeclaration)) {
         if (CheckIgnore(cls->class_name + d.class_name)) {
-          Crawl<Ent, EntMgr, SysMgr, Dep>(dep_ent.entity, &d, ent_mgr, sys_mgr,
+          Crawl<Ent, EntMgr, SysMgr, Dep>(dep_ent_casted, &d, ent_mgr, sys_mgr,
                                           visited, depth + 1, max_depth, added,
-                                          out, connection_entry);
+                                          out, connection_entry, origin);
 
           if (d.class_name != cls->class_name) {
             CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
             CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
-            CheckAndAdd(added, connection_entry(cls->class_name, d.class_name),
-                        out);
+            if (depth == 0 || dep_ent_casted != origin)
+              CheckAndAdd(added,
+                          connection_entry(cls->class_name, d.class_name), out);
           }
         }
       }
@@ -163,10 +172,6 @@ class PlantUmlPrinter {
     return true;
   }
 
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
-
- private:
   size_t max_dependents_;
   std::vector<std::string> ignore_patterns_;
 };

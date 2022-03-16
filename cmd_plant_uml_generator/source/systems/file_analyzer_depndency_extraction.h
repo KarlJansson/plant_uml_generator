@@ -13,7 +13,9 @@
 #include "dependee.h"
 #include "dependent.h"
 #include "file_path.h"
+#include "model_exporter.h"
 #include "plant_uml_printer.h"
+#include "settings.h"
 
 class FileAnalyzerDependencyExtraction {
  public:
@@ -45,7 +47,12 @@ class FileAnalyzerDependencyExtraction {
     });
 
     smgr_remove_system(FileAnalyzerDependencyExtraction);
-    smgr_add_system(PlantUmlPrinter);
+
+    auto settings = emgr_component_r(Settings);
+    if (settings->export_model)
+      smgr_add_system(ModelExporter);
+    else
+      smgr_add_system(PlantUmlPrinter);
   }
 
   void Init() {}

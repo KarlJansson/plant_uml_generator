@@ -10,6 +10,8 @@
 #include "arguments.h"
 #include "directory_crawler.h"
 #include "ignore_patterns.h"
+#include "model_exporter.h"
+#include "model_importer.h"
 #include "settings.h"
 
 class ArgumentParser {
@@ -18,7 +20,6 @@ class ArgumentParser {
     auto& dir_list = emgr_add_component(DirectoryList);
     auto& ignore_patterns = emgr_add_component(IgnorePatterns);
     auto& settings = emgr_add_component(Settings);
-    auto arguments = emgr_component_w(Arguments);
 
     std::unordered_map<std::string, std::function<void(const std::string&)>>
         command_table{
@@ -33,6 +34,12 @@ class ArgumentParser {
             {"-md",
              [&](const std::string& arg) {
                if (!arg.empty()) settings.max_dependents = std::stoi(arg);
+             }},
+            {"-export",
+             [&](const std::string& arg) { settings.export_model = true; }},
+            {"-import",
+             [&](const std::string& arg) {
+               if (!arg.empty()) settings.import_path = arg;
              }},
             {"-el",
              [&](const std::string& arg) {
@@ -52,27 +59,33 @@ class ArgumentParser {
 
     auto argument_distributer = command_table["-d"];
 
+    auto arguments = emgr_component_r(Arguments);
     for (auto& arg : arguments->args) {
       if (auto it = command_table.find(arg); it != std::end(command_table)) {
         argument_distributer = it->second;
         try {
           argument_distributer("");
         } catch (...) {
+          std::cout << "faulty input detected" << std::endl;
         }
       } else {
         try {
           argument_distributer(arg);
         } catch (...) {
+          std::cout << "faulty input detected" << std::endl;
         }
       }
     }
 
-    if (arguments->args.empty() || dir_list.directories.empty() ||
-        settings.flags.empty()) {
+    if ((arguments->args.empty() || dir_list.directories.empty() ||
+         settings.flags.empty()) &&
+        !settings.export_model) {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"
                    "  -md <max_dep> - Set max dependents to continue\n"
+                   "  -export - Export model\n"
+                   "  -import - Import model\n"
                    "  -el <expand_steps> - Expand individual diargrams\n"
                    "  -pi - Print individual collaboration diagrams for types\n"
                    "  -pif - Print individual collaboration diagrams to file\n"
@@ -80,7 +93,9 @@ class ArgumentParser {
                 << std::endl;
       auto& exit_code = emgr_add_component(int);
       exit_code = 0;
-    } else
+    } else if (!settings.import_path.empty())
+      smgr_add_system(ModelImporter);
+    else
       smgr_add_system(DirectoryCrawler);
   }
 

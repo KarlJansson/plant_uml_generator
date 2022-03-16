@@ -17,3 +17,9 @@ TEST(MainEntry, main_test_full_call) {
   auto result = MainEntry::Main(args);
   EXPECT_EQ(result, 0);
 }
+
+TEST(MainEntry, main_test_full_export) {
+  std::vector<std::string> args{"../", "-pf", "-export"};
+  auto result = MainEntry::Main(args);
+  EXPECT_EQ(result, 0);
+}
