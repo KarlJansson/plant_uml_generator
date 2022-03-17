@@ -29,7 +29,18 @@ class ArgumentParser {
              }},
             {"-i",
              [&](const std::string& arg) {
-               if (!arg.empty()) ignore_patterns.patterns.emplace_back(arg);
+               if (!arg.empty())
+                 ignore_patterns.ignore_patterns.emplace_back(arg);
+             }},
+            {"-s",
+             [&](const std::string& arg) {
+               if (!arg.empty())
+                 ignore_patterns.stop_patterns.emplace_back(arg);
+             }},
+            {"-if",
+             [&](const std::string& arg) {
+               if (!arg.empty())
+                 ignore_patterns.file_patterns.emplace_back(arg);
              }},
             {"-md",
              [&](const std::string& arg) {
@@ -83,6 +94,8 @@ class ArgumentParser {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"
+                   "  -if <ignore_pattern> - Ignores files including patterns\n"
+                   "  -s <ignore_pattern> - Stops on types including patterns\n"
                    "  -md <max_dep> - Set max dependents to continue\n"
                    "  -export - Export model\n"
                    "  -import - Import model\n"

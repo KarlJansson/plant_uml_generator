@@ -41,7 +41,8 @@ class PlantUmlPrinter {
       print_individual_file = true;
 
     auto ignore_patterns = emgr_component_r(IgnorePatterns);
-    ignore_patterns_ = ignore_patterns->patterns;
+    ignore_patterns_ = ignore_patterns->ignore_patterns;
+    stop_patterns_ = ignore_patterns->stop_patterns;
 
     if (print_full) {
       std::string full;
@@ -153,6 +154,14 @@ class PlantUmlPrinter {
               CheckAndAdd(added,
                           connection_entry(cls->class_name, d.class_name), out);
           }
+        } else if (CheckStop(cls->class_name + d.class_name)) {
+          if (d.class_name != cls->class_name) {
+            CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
+            CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
+            if (depth == 0 || dep_ent_casted != origin)
+              CheckAndAdd(added,
+                          connection_entry(cls->class_name, d.class_name), out);
+          }
         }
       }
     }
@@ -172,6 +181,13 @@ class PlantUmlPrinter {
     return true;
   }
 
+  bool CheckStop(std::string check) {
+    for (auto& p : stop_patterns_)
+      if (check.find(p) != std::string::npos) return false;
+    return true;
+  }
+
   size_t max_dependents_;
   std::vector<std::string> ignore_patterns_;
+  std::vector<std::string> stop_patterns_;
 };

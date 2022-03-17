@@ -14,7 +14,7 @@
 class ModelImporter {
  public:
   system_step() {
-    std::unordered_map<std::string, Ent> entity_map;
+    std::unordered_map<size_t, Ent> entity_map;
     auto capture_declarations = [&](auto& in) {
       std::string type, decl;
       while (std::getline(in, type, ',')) {
@@ -24,7 +24,7 @@ class ModelImporter {
           auto& cls = ent_add_component(ent, ClassDeclaration);
           cls.type = type;
           cls.class_name = decl;
-          entity_map[decl] = ent;
+          entity_map[entity_map.size()] = ent;
         }
       }
     };
@@ -33,8 +33,9 @@ class ModelImporter {
       while (std::getline(in, source, ',')) {
         if (source == "<dependees>") break;
         if (std::getline(in, target, ',')) {
-          auto& dep = ent_add_component(entity_map[source], Dependent<EntMgr>);
-          dep.entity = entity_map[target];
+          auto& dep = ent_add_component(entity_map[std::stoi(source)],
+                                        Dependent<EntMgr>);
+          dep.entity = entity_map[std::stoi(target)];
         }
       }
     };
@@ -42,8 +43,9 @@ class ModelImporter {
       std::string source, target;
       while (std::getline(in, source, ',')) {
         if (std::getline(in, target, ',')) {
-          auto& dep = ent_add_component(entity_map[source], Dependee<EntMgr>);
-          dep.entity = entity_map[target];
+          auto& dep = ent_add_component(entity_map[std::stoi(source)],
+                                        Dependee<EntMgr>);
+          dep.entity = entity_map[std::stoi(target)];
         }
       }
     };
@@ -54,9 +56,13 @@ class ModelImporter {
       std::string line;
       while (std::getline(in, line, ',')) {
         if (line == "<declarations>") {
-          capture_declarations(in);
-          capture_dependents(in);
-          capture_dependees(in);
+          try {
+            capture_declarations(in);
+            capture_dependents(in);
+            capture_dependees(in);
+          } catch (...) {
+            std::cout << "import failed" << std::endl;
+          }
         }
       }
     }
