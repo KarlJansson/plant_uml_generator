@@ -22,10 +22,10 @@ class DirectoryCrawler {
       return true;
     };
 
-    for (const auto& [c, ent] : emgr_components_r(DirectoryList)) {
+    for (auto& [c, ent] : emgr_components_r(DirectoryList)) {
       for (auto& str : c.directories) {
         if (!std::filesystem::exists(str)) continue;
-        std::unordered_map<std::string, Ent> file_ents;
+        std::unordered_map<std::string, Entity> file_ents;
         for (auto& p : std::filesystem::recursive_directory_iterator(str)) {
           if (std::filesystem::is_regular_file(p)) {
             std::string file_path = p.path();

@@ -110,6 +110,7 @@ class ArgumentParser {
       smgr_add_system(ModelImporter);
     else
       smgr_add_system(DirectoryCrawler);
+    smgr_remove_system(ArgumentParser);
   }
 
   void Init() {}

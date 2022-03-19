@@ -14,7 +14,7 @@
 class ModelImporter {
  public:
   system_step() {
-    std::unordered_map<size_t, Ent> entity_map;
+    std::unordered_map<size_t, Entity> entity_map;
     auto capture_declarations = [&](auto& in) {
       std::string type, decl;
       while (std::getline(in, type, ',')) {
@@ -33,8 +33,8 @@ class ModelImporter {
       while (std::getline(in, source, ',')) {
         if (source == "<dependees>") break;
         if (std::getline(in, target, ',')) {
-          auto& dep = ent_add_component(entity_map[std::stoi(source)],
-                                        Dependent<EntMgr>);
+          auto& dep =
+              ent_add_component(entity_map[std::stoi(source)], Dependent);
           dep.entity = entity_map[std::stoi(target)];
         }
       }
@@ -43,8 +43,8 @@ class ModelImporter {
       std::string source, target;
       while (std::getline(in, source, ',')) {
         if (std::getline(in, target, ',')) {
-          auto& dep = ent_add_component(entity_map[std::stoi(source)],
-                                        Dependee<EntMgr>);
+          auto& dep =
+              ent_add_component(entity_map[std::stoi(source)], Dependee);
           dep.entity = entity_map[std::stoi(target)];
         }
       }

@@ -47,9 +47,9 @@ class PlantUmlPrinter {
     if (print_full) {
       std::string full;
       std::unordered_set<std::string> added;
-      for (const auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
+      for (auto& [cls, cls_ent] : emgr_components_r(ClassDeclaration)) {
         std::unordered_set<std::string> visited;
-        Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
+        Crawl<EntMgr, SysMgr, Dependent>(
             cls_ent, &cls, ent_mgr, sys_mgr, visited, 0, 1, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str2 + " ..> " + str1 + "\n";
@@ -58,7 +58,7 @@ class PlantUmlPrinter {
 
         visited.erase(cls.class_name);
 
-        Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
+        Crawl<EntMgr, SysMgr, Dependee>(
             cls_ent, &cls, ent_mgr, sys_mgr, visited, 0, 1, added, full,
             [](auto& str1, auto& str2) -> auto {
               return str1 + " ..> " + str2 + "\n";
@@ -72,7 +72,7 @@ class PlantUmlPrinter {
       std::mutex print_mtx;
       auto type_declarations = emgr_components_r(ClassDeclaration);
       auto individual_processing = [&](auto i) {
-        const auto& [cls, cls_ent] = type_declarations[i];
+        auto& [cls, cls_ent] = type_declarations[i];
         std::string single = header;
 
         single += "title <used> " + cls.class_name + " <using>\n\n";
@@ -80,7 +80,7 @@ class PlantUmlPrinter {
         std::unordered_set<std::string> added;
         std::unordered_set<std::string> visited;
 
-        Crawl<Ent, EntMgr, SysMgr, Dependent<EntMgr>>(
+        Crawl<EntMgr, SysMgr, Dependent>(
             cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
@@ -90,7 +90,7 @@ class PlantUmlPrinter {
 
         visited.erase(cls.class_name);
 
-        Crawl<Ent, EntMgr, SysMgr, Dependee<EntMgr>>(
+        Crawl<EntMgr, SysMgr, Dependee>(
             cls_ent, &cls, ent_mgr, sys_mgr, visited, 0,
             settings->expansion_level, added, single,
             [](auto& str1, auto& str2) -> auto {
@@ -110,8 +110,6 @@ class PlantUmlPrinter {
         }
       };
 
-      // for (size_t i = 0; i < type_declarations.size(); ++i)
-      //   individual_processing(i);
       tbb_templates::parallel_for(type_declarations, individual_processing);
     }
 
@@ -125,14 +123,14 @@ class PlantUmlPrinter {
   std::vector<std::type_index> Dependencies() { return {}; }
 
  private:
-  template <typename Ent, typename EntMgr, typename SysMgr, typename Dep>
-  void Crawl(Ent& focus, const ClassDeclaration* cls, EntMgr& ent_mgr,
+  template <typename EntMgr, typename SysMgr, typename Dep>
+  void Crawl(Entity& focus, const ClassDeclaration* cls, EntMgr& ent_mgr,
              SysMgr& sys_mgr, std::unordered_set<std::string>& visited,
              size_t depth, size_t max_depth,
              std::unordered_set<std::string>& added, std::string& out,
              std::function<std::string(const std::string&, const std::string&)>
                  connection_entry,
-             Ent& origin) {
+             Entity& origin) {
     if (depth == max_depth) return;
     if (visited.find(cls->class_name) != std::end(visited)) return;
     visited.insert(cls->class_name);
@@ -140,17 +138,16 @@ class PlantUmlPrinter {
     auto dependencies = ent_components_r(focus, Dep);
     if (dependencies.size() > max_dependents_ && focus != origin) return;
     for (auto& dep_ent : dependencies) {
-      auto& dep_ent_casted = const_cast<ecs::Entity<EntMgr>&>(dep_ent.entity);
-      for (auto& d : ent_components_r(dep_ent_casted, ClassDeclaration)) {
+      for (auto& d : ent_components_r(dep_ent.entity, ClassDeclaration)) {
         if (CheckIgnore(cls->class_name + d.class_name)) {
-          Crawl<Ent, EntMgr, SysMgr, Dep>(dep_ent_casted, &d, ent_mgr, sys_mgr,
-                                          visited, depth + 1, max_depth, added,
-                                          out, connection_entry, origin);
+          Crawl<EntMgr, SysMgr, Dep>(dep_ent.entity, &d, ent_mgr, sys_mgr,
+                                     visited, depth + 1, max_depth, added, out,
+                                     connection_entry, origin);
 
           if (d.class_name != cls->class_name) {
             CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
             CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
-            if (depth == 0 || dep_ent_casted != origin)
+            if (depth == 0 || dep_ent.entity != origin)
               CheckAndAdd(added,
                           connection_entry(cls->class_name, d.class_name), out);
           }
@@ -158,7 +155,7 @@ class PlantUmlPrinter {
           if (d.class_name != cls->class_name) {
             CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
             CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
-            if (depth == 0 || dep_ent_casted != origin)
+            if (depth == 0 || dep_ent.entity != origin)
               CheckAndAdd(added,
                           connection_entry(cls->class_name, d.class_name), out);
           }

@@ -18,7 +18,7 @@ class FileAnalyzerTypeExtraction {
   system_step() {
     auto class_declarations = emgr_components_r(FilePath);
     tbb_templates::parallel_for(class_declarations, [&](size_t i) {
-      const auto& [c, ent] = class_declarations[i];
+      auto& [c, ent] = class_declarations[i];
       std::set<std::string> found;
       auto file_content = fsu::FileReader::FileToString(c.file_path);
       auto find_types = [&](const std::string& type_str,
