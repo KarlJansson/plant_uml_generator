@@ -14,7 +14,7 @@
 
 class DirectoryCrawler {
  public:
-  system_step() {
+  system_step_default() {
     auto patterns = emgr_component_r(IgnorePatterns);
     auto check_ignore = [&](auto& check) {
       for (auto& p : patterns->file_patterns)
@@ -22,7 +22,7 @@ class DirectoryCrawler {
       return true;
     };
 
-    for (auto& [c, ent] : emgr_components_r(DirectoryList)) {
+    for (auto [c, ent] : emgr_components_r(DirectoryList)) {
       for (auto& str : c.directories) {
         if (!std::filesystem::exists(str)) continue;
         std::unordered_map<std::string, Entity> file_ents;
@@ -49,7 +49,4 @@ class DirectoryCrawler {
     smgr_remove_system(DirectoryCrawler);
     smgr_add_system(FileAnalyzerTypeExtraction);
   }
-
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
 };

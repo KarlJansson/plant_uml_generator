@@ -15,10 +15,10 @@
 
 class FileAnalyzerTypeExtraction {
  public:
-  system_step() {
+  system_step_default() {
     auto class_declarations = emgr_components_r(FilePath);
     tbb_templates::parallel_for(class_declarations, [&](size_t i) {
-      auto& [c, ent] = class_declarations[i];
+      auto [c, ent] = class_declarations[i];
       std::set<std::string> found;
       auto file_content = fsu::FileReader::FileToString(c.file_path);
       auto find_types = [&](const std::string& type_str,
@@ -45,9 +45,6 @@ class FileAnalyzerTypeExtraction {
     smgr_remove_system(FileAnalyzerTypeExtraction);
     smgr_add_system(FileAnalyzerDependencyExtraction);
   }
-
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
 
  private:
   bool IsValid(const std::string& str, std::set<std::string>& found) {

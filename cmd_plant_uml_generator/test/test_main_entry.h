@@ -2,24 +2,24 @@
 
 TEST(MainEntry, main_test) {
   std::vector<std::string> args{"../", "-pi", "-el", "2"};
-  auto result = MainEntry::Main(args);
+  auto result = MainEntry::Main<EntityManager_t, SystemManager_t>(args);
   EXPECT_EQ(result, 0);
 }
 
 TEST(MainEntry, main_test_faulty_call) {
   std::vector<std::string> args{"../"};
-  auto result = MainEntry::Main(args);
+  auto result = MainEntry::Main<EntityManager_t, SystemManager_t>(args);
   EXPECT_EQ(result, 0);
 }
 
 TEST(MainEntry, main_test_full_call) {
   std::vector<std::string> args{"../", "-pf"};
-  auto result = MainEntry::Main(args);
+  auto result = MainEntry::Main<EntityManager_t, SystemManager_t>(args);
   EXPECT_EQ(result, 0);
 }
 
 TEST(MainEntry, main_test_full_export) {
-  std::vector<std::string> args{"../", "-pf", "-export"};
-  auto result = MainEntry::Main(args);
+  std::vector<std::string> args{"../", "-pf", "-export", "test"};
+  auto result = MainEntry::Main<EntityManager_t, SystemManager_t>(args);
   EXPECT_EQ(result, 0);
 }

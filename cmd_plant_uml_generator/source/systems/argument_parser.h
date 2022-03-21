@@ -16,7 +16,7 @@
 
 class ArgumentParser {
  public:
-  system_step() {
+  system_step_default() {
     auto& dir_list = emgr_add_component(DirectoryList);
     auto& ignore_patterns = emgr_add_component(IgnorePatterns);
     auto& settings = emgr_add_component(Settings);
@@ -47,7 +47,9 @@ class ArgumentParser {
                if (!arg.empty()) settings.max_dependents = std::stoi(arg);
              }},
             {"-export",
-             [&](const std::string& arg) { settings.export_model = true; }},
+             [&](const std::string& arg) {
+               if (!arg.empty()) settings.export_path = arg;
+             }},
             {"-import",
              [&](const std::string& arg) {
                if (!arg.empty()) settings.import_path = arg;
@@ -90,7 +92,7 @@ class ArgumentParser {
 
     if ((arguments->args.empty() || dir_list.directories.empty() ||
          settings.flags.empty()) &&
-        !settings.export_model) {
+        settings.export_path.empty()) {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"
@@ -112,7 +114,4 @@ class ArgumentParser {
       smgr_add_system(DirectoryCrawler);
     smgr_remove_system(ArgumentParser);
   }
-
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
 };

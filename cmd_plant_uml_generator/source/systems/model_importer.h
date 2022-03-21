@@ -13,7 +13,7 @@
 
 class ModelImporter {
  public:
-  system_step() {
+  system_step_default() {
     std::unordered_map<size_t, Entity> entity_map;
     auto capture_declarations = [&](auto& in) {
       std::string type, decl;
@@ -70,7 +70,4 @@ class ModelImporter {
     smgr_remove_system(ModelImporter);
     smgr_add_system(PlantUmlPrinter);
   }
-
-  void Init() {}
-  std::vector<std::type_index> Dependencies() { return {}; }
 };

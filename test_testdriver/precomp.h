@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 
+#include <ecs_macros.h>
 #include <entity_manager_simple.h>
 #include <tbb/tbb.h>
 #include <limits>
