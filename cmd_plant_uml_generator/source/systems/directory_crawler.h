@@ -37,7 +37,7 @@ class DirectoryCrawler {
               file_name = file_name.substr(0, file_name.find_last_of('.'));
               if (file_ents.find(file_name) == std::end(file_ents))
                 file_ents[file_name] = ent_mgr.CreateEntity();
-              auto& fp = ent_add_component(file_ents[file_name], FilePath);
+              auto& fp = ent_add_component(FilePath, file_ents[file_name]);
               fp.file_path = file_path;
               fp.file_name = file_name;
             }

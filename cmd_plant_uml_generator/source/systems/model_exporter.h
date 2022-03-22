@@ -26,15 +26,15 @@ class ModelExporter {
 
     std::cout << "<dependents>,";
     for (auto [cls, cls_ent] : emgr_components_r(ClassDeclaration))
-      for (auto& dep : ent_components_r(cls_ent, Dependent))
-        for (auto& dep_cls : ent_components_r(dep.entity, ClassDeclaration))
+      for (auto& dep : ent_components_r(Dependent, cls_ent))
+        for (auto& dep_cls : ent_components_r(ClassDeclaration, dep.entity))
           std::cout << id_lookup[cls.class_name] << ","
                     << id_lookup[dep_cls.class_name] << ",";
 
     std::cout << "<dependees>,";
     for (auto [cls, cls_ent] : emgr_components_r(ClassDeclaration))
-      for (auto& dep : ent_components_r(cls_ent, Dependee))
-        for (auto& dep_cls : ent_components_r(dep.entity, ClassDeclaration))
+      for (auto& dep : ent_components_r(Dependee, cls_ent))
+        for (auto& dep_cls : ent_components_r(ClassDeclaration, dep.entity))
           std::cout << id_lookup[cls.class_name] << ","
                     << id_lookup[dep_cls.class_name] << ",";
 

@@ -21,7 +21,7 @@ class ModelImporter {
         if (type == "<dependents>") break;
         auto ent = ent_mgr.CreateEntity();
         if (std::getline(in, decl, ',')) {
-          auto& cls = ent_add_component(ent, ClassDeclaration);
+          auto& cls = ent_add_component(ClassDeclaration, ent);
           cls.type = type;
           cls.class_name = decl;
           entity_map[entity_map.size()] = ent;
@@ -34,7 +34,7 @@ class ModelImporter {
         if (source == "<dependees>") break;
         if (std::getline(in, target, ',')) {
           auto& dep =
-              ent_add_component(entity_map[std::stoi(source)], Dependent);
+              ent_add_component(Dependent, entity_map[std::stoi(source)]);
           dep.entity = entity_map[std::stoi(target)];
         }
       }
@@ -44,7 +44,7 @@ class ModelImporter {
       while (std::getline(in, source, ',')) {
         if (std::getline(in, target, ',')) {
           auto& dep =
-              ent_add_component(entity_map[std::stoi(source)], Dependee);
+              ent_add_component(Dependee, entity_map[std::stoi(source)]);
           dep.entity = entity_map[std::stoi(target)];
         }
       }

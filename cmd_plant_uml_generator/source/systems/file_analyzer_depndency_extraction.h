@@ -23,7 +23,7 @@ class FileAnalyzerDependencyExtraction {
     auto class_declarations = emgr_components_r(ClassDeclaration);
     auto func = [&](auto i) {
       auto [c, ent] = class_declarations[i];
-      auto fp = ent_component_r(ent, FilePath);
+      auto fp = ent_component_r(FilePath, ent);
 
       auto file_paths = emgr_components_r(FilePath);
       tbb_templates::parallel_for(file_paths, [&](auto i) {
@@ -33,13 +33,13 @@ class FileAnalyzerDependencyExtraction {
           for (auto [us, us_e] : emgr_components_r(ClassDeclaration)) {
             if (us.class_name == c.class_name) continue;
             if (file_content.find(us.class_name) != std::string::npos) {
-              auto& dependee = ent_add_component(ent, Dependee);
+              auto& dependee = ent_add_component(Dependee, ent);
               dependee.entity = us_e;
             }
           }
         } else {
           if (file_content.find(c.class_name) != std::string::npos) {
-            auto& dependent = ent_add_component(ent, Dependent);
+            auto& dependent = ent_add_component(Dependent, ent);
             dependent.entity = file_ent;
           }
         }
