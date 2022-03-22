@@ -27,6 +27,10 @@ class ArgumentParser {
              [&](const std::string& arg) {
                if (!arg.empty()) dir_list.directories.emplace_back(arg);
              }},
+            {"-ecs_analysis",
+             [&](const std::string& arg) {
+               settings.flags.insert(Settings::Flag::kEcsAnalysis);
+             }},
             {"-i",
              [&](const std::string& arg) {
                if (!arg.empty())
@@ -92,7 +96,7 @@ class ArgumentParser {
 
     if ((arguments->args.empty() || dir_list.directories.empty() ||
          settings.flags.empty()) &&
-        settings.export_path.empty()) {
+        settings.export_path.empty() && settings.import_path.empty()) {
       std::cout << "Need at least one directory path and one print flag:\n"
                    "  -d <director_path> - Analyze files in folders\n"
                    "  -i <ignore_pattern> - Ignores types including patterns\n"

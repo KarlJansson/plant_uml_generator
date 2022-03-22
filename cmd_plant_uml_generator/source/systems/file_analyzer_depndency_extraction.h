@@ -20,6 +20,10 @@
 class FileAnalyzerDependencyExtraction {
  public:
   system_step_default() {
+    auto settings = emgr_component_r(Settings);
+    bool ecs_analysis = settings->flags.find(Settings::Flag::kEcsAnalysis) !=
+                        std::end(settings->flags);
+
     auto class_declarations = emgr_components_r(ClassDeclaration);
     auto func = [&](auto i) {
       auto [c, ent] = class_declarations[i];
@@ -35,12 +39,18 @@ class FileAnalyzerDependencyExtraction {
             if (file_content.find(us.class_name) != std::string::npos) {
               auto& dependee = ent_add_component(Dependee, ent);
               dependee.entity = us_e;
+              if (ecs_analysis) {
+                // Add extra searches for macro definitions
+              }
             }
           }
         } else {
           if (file_content.find(c.class_name) != std::string::npos) {
             auto& dependent = ent_add_component(Dependent, ent);
             dependent.entity = file_ent;
+            if (ecs_analysis) {
+              // Add extra searches for macro definitions
+            }
           }
         }
       });
@@ -50,7 +60,6 @@ class FileAnalyzerDependencyExtraction {
 
     smgr_remove_system(FileAnalyzerDependencyExtraction);
 
-    auto settings = emgr_component_r(Settings);
     if (!settings->export_path.empty())
       smgr_add_system(ModelExporter);
     else
