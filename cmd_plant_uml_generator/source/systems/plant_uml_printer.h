@@ -125,11 +125,12 @@ class PlantUmlPrinter {
              size_t max_depth, std::unordered_set<std::string>& added,
              std::string& out,
              std::function<std::string(const std::string&, const std::string&)>
-                 connection_entry,
+                 conn_entry,
              const Entity& origin) {
     if (depth == max_depth) return;
     if (visited.find(cls->class_name) != std::end(visited)) return;
     visited.insert(cls->class_name);
+    if (CheckStop(cls->class_name) && depth != 0) return;
 
     auto dependencies = ent_components_r(focus, Dep);
     if (dependencies.size() > max_dependents_ && focus != origin) return;
@@ -137,22 +138,14 @@ class PlantUmlPrinter {
       for (auto& d : ent_components_r(dep_ent.entity, ClassDeclaration)) {
         if (CheckIgnore(cls->class_name + d.class_name)) {
           Crawl<Dep>(ent_mgr, sys_mgr, dep_ent.entity, &d, visited, depth + 1,
-                     max_depth, added, out, connection_entry, origin);
+                     max_depth, added, out, conn_entry, origin);
 
           if (d.class_name != cls->class_name) {
             CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
             CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
             if (depth == 0 || dep_ent.entity != origin)
-              CheckAndAdd(added,
-                          connection_entry(cls->class_name, d.class_name), out);
-          }
-        } else if (CheckStop(cls->class_name + d.class_name)) {
-          if (d.class_name != cls->class_name) {
-            CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
-            CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
-            if (depth == 0 || dep_ent.entity != origin)
-              CheckAndAdd(added,
-                          connection_entry(cls->class_name, d.class_name), out);
+              CheckAndAdd(added, conn_entry(cls->class_name, d.class_name),
+                          out);
           }
         }
       }
@@ -167,16 +160,16 @@ class PlantUmlPrinter {
     }
   }
 
-  bool CheckIgnore(std::string check) {
+  bool CheckIgnore(const std::string& check) {
     for (auto& p : ignore_patterns_)
       if (check.find(p) != std::string::npos) return false;
     return true;
   }
 
-  bool CheckStop(std::string check) {
+  bool CheckStop(const std::string& check) {
     for (auto& p : stop_patterns_)
-      if (check.find(p) != std::string::npos) return false;
-    return true;
+      if (check.find(p) != std::string::npos) return true;
+    return false;
   }
 
   size_t max_dependents_;
