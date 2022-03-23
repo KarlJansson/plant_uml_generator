@@ -122,9 +122,11 @@ class PlantUmlPrinter {
     visited.insert(cls->class_name);
     if (CheckStop(cls->class_name) && depth != 0) return;
 
-    auto dependencies = ent_components_r(Dep, focus);
-    if (dependencies.size() > max_dependents_ && focus != origin) return;
-    for (auto& dep_ent : dependencies) {
+    auto dependents = ent_components_r(Dependent, focus);
+    auto dependees = ent_components_r(Dependee, focus);
+    if (dependents.size() + dependees.size() > max_dependents_ && depth != 0)
+      return;
+    for (auto& dep_ent : ent_components_r(Dep, focus)) {
       for (auto& d : ent_components_r(ClassDeclaration, dep_ent.entity)) {
         if (CheckIgnore(cls->class_name + d.class_name)) {
           Crawl<Dep>(ent_mgr, sys_mgr, dep_ent.entity, &d, visited, depth + 1,
