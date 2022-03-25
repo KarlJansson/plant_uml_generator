@@ -18,10 +18,10 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 if (WIN32)
   add_definitions(-DWindowsBuild)
-  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -MP /std:c++17 -O3")
+  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -MP /std:c++2a -O3")
 else(WIN32)
   add_definitions(-DUnixBuild)
-  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -O3")
+  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++2a -O3")
 endif(WIN32)
 
 find_program(CMAKEMAKER_CMD cmakemaker)

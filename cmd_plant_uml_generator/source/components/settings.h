@@ -1,6 +1,8 @@
 #pragma once
 
 #include <limits>
+#include <string>
+#include <unordered_set>
 
 struct Settings {
   enum class Flag {

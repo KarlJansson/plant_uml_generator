@@ -5,6 +5,13 @@ cmake_minimum_required(VERSION 3.6)
 
 set(cpp_files
   ./source/main.cc
+  ./source/systems/file_analyzer_type_extraction.cc
+  ./source/systems/file_analyzer_depndency_extraction.cc
+  ./source/systems/directory_crawler.cc
+  ./source/systems/plant_uml_printer.cc
+  ./source/systems/model_importer.cc
+  ./source/systems/argument_parser.cc
+  ./source/systems/model_exporter.cc
   ./source/main_entry.h
   ./source/components/settings.h
   ./source/components/ignore_patterns.h
@@ -30,6 +37,13 @@ source_group(source FILES
 )
 
 source_group(source/systems FILES
+  ./source/systems/file_analyzer_type_extraction.cc
+  ./source/systems/file_analyzer_depndency_extraction.cc
+  ./source/systems/directory_crawler.cc
+  ./source/systems/plant_uml_printer.cc
+  ./source/systems/model_importer.cc
+  ./source/systems/argument_parser.cc
+  ./source/systems/model_exporter.cc
   ./source/systems/argument_parser.h
   ./source/systems/directory_crawler.h
   ./source/systems/model_importer.h

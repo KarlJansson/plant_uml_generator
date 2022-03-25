@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ecs_macros.h>
 #include <entity_manager_simple.h>
 #include <system_manager.h>
 
@@ -17,19 +16,20 @@ using namespace ecss;
 
 class MainEntry {
  public:
-  template <typename EntMgr, typename SysMgr>
   static int Main(std::vector<std::string>& args) {
-    EntMgr ent_mgr;
-    SysMgr sys_mgr;
+    EntityManager_t ent_mgr;
+    SystemManager_t sys_mgr;
 
-    auto& arg_comp = emgr_add_component(Arguments);
+    auto& arg_comp = ent_mgr.AddComponent<Arguments>();
     arg_comp.args = args;
 
-    smgr_add_system(ArgumentParser);
+    sys_mgr.AddSystem<ArgumentParser>();
 
     while (true) {
-      smgr_step_systems(ent_mgr);
-      if (auto comp = emgr_component_r(int); comp) return *comp;
+      sys_mgr.Step(ent_mgr);
+      ent_mgr.SyncSwap();
+      sys_mgr.SyncSystems();
+      if (auto comp = ent_mgr.ComponentR<int>(); comp) return *comp;
     }
   }
 };

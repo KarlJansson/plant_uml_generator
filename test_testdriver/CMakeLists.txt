@@ -27,6 +27,13 @@ include_directories(testdriver
 )
 
 target_link_libraries(testdriver
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/argument_parser.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/directory_crawler.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/file_analyzer_depndency_extraction.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/file_analyzer_type_extraction.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/model_exporter.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/model_importer.cc.o
+  ${CMAKE_CURRENT_BINARY_DIR}/../cmd_plant_uml_generator/CMakeFiles/plant_uml_generator.dir/./source/systems/plant_uml_printer.cc.o
   ${GMOCK_LIBRARIES}
   ${GTEST_LIBRARIES}
   libpthread.so
