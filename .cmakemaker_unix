@@ -7,7 +7,7 @@ cpp_version : c++2a -O3
 }
 
 {
-  name : "entity_manager_simple.h"
+  name : "entity_manager.h"
   include_dir : "../../header_libraries/slib_header_libraries/include/entity_component_system"
   include_dir : "../../header_libraries/slib_header_libraries/include/synchronization"
   include_dir : "../../header_libraries/slib_header_libraries/include"

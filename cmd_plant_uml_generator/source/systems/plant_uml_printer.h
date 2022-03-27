@@ -1,6 +1,6 @@
 #pragma once
 
-#include <entity_manager_simple.h>
+#include <entity_manager.h>
 using namespace ecss;
 
 #include <system_manager.h>

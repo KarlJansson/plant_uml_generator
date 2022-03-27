@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <set>
 #include <string>
-#include <entity_manager_simple.h>
+#include <entity_manager.h>
 #include <system_manager.h>
 #include <typeindex>
 #include <vector>
