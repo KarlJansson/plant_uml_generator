@@ -125,8 +125,11 @@ void PlantUmlPrinter::Crawl(
                    added, out, conn_entry, origin);
 
         if (d.class_name != cls->class_name) {
-          CheckAndAdd(added, d.type + " " + d.class_name + "\n", out);
-          CheckAndAdd(added, cls->type + " " + cls->class_name + "\n", out);
+          CheckAndAdd(added, d.type + " " + d.class_name + " " + d.tag + "\n",
+                      out);
+          CheckAndAdd(added,
+                      cls->type + " " + cls->class_name + " " + cls->tag + "\n",
+                      out);
           if (depth == 0 || dep_ent.entity != origin)
             CheckAndAdd(added, conn_entry(cls->class_name, d.class_name), out);
         }

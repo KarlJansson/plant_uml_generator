@@ -15,12 +15,19 @@ void ModelExporter::Init() {}
 void ModelExporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   std::vector<std::string> class_declarations;
   std::vector<std::string> type_declarations;
+  std::vector<std::string> tag_declarations;
   std::vector<std::uint16_t> type_indices;
+  std::vector<std::uint16_t> tag_indices;
 
+  std::unordered_map<std::string, std::uint16_t> id_tags;
   std::unordered_map<std::string, std::uint16_t> id_types;
   std::unordered_map<std::string, std::uint16_t> id_lookup;
 
   for (auto [cls, cls_ent] : ent_mgr.ComponentsR<ClassDeclaration>()) {
+    if (id_tags.find(cls.tag) == std::end(id_tags)) {
+      id_tags[cls.tag] = id_tags.size();
+      tag_declarations.emplace_back(cls.tag);
+    }
     if (id_types.find(cls.type) == std::end(id_types)) {
       id_types[cls.type] = id_types.size();
       type_declarations.emplace_back(cls.type);
@@ -29,6 +36,7 @@ void ModelExporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
       id_lookup[cls.class_name] = id_lookup.size();
       class_declarations.emplace_back(cls.class_name);
       type_indices.emplace_back(id_types[cls.type]);
+      tag_indices.emplace_back(id_tags[cls.tag]);
     }
   }
 
@@ -58,6 +66,14 @@ void ModelExporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   size = type_indices.size() * sizeof(decltype(type_indices)::value_type);
   out.write((char*)&size, sizeof(size));
   out.write((char*)type_indices.data(), size);
+
+  size = tag_declarations.size();
+  out.write((char*)&size, sizeof(size));
+  for (auto& str : tag_declarations) out << str << ",";
+
+  size = tag_indices.size() * sizeof(decltype(tag_indices)::value_type);
+  out.write((char*)&size, sizeof(size));
+  out.write((char*)tag_indices.data(), size);
 
   size = class_declarations.size();
   out.write((char*)&size, sizeof(size));

@@ -7,11 +7,13 @@
 #include "class_declaration.h"
 #include "file_analyzer_depndency_extraction.h"
 #include "file_path.h"
+#include "ignore_patterns.h"
 
 void FileAnalyzerTypeExtraction::Init() {}
 
 void FileAnalyzerTypeExtraction::Step(EntityManager_t& ent_mgr,
                                       SystemManager_t& sys_mgr) {
+  auto ignore_patterns = ent_mgr.ComponentR<IgnorePatterns>();
   auto class_declarations = ent_mgr.ComponentsR<FilePath>();
   tbb_templates::parallel_for(class_declarations, [&](size_t i) {
     auto [c, ent] = class_declarations[i];
@@ -29,6 +31,11 @@ void FileAnalyzerTypeExtraction::Step(EntityManager_t& ent_mgr,
             auto& class_decl = ent_mgr.AddComponent<ClassDeclaration>(ent);
             class_decl.class_name = class_name;
             class_decl.type = type;
+
+            if (ignore_patterns)
+              for (auto& [str, tag] : ignore_patterns->tag_patterns)
+                if (c.file_path.find(str) != std::string::npos)
+                  class_decl.tag = tag;
           }
           p = file_content.find(type_str, p2);
         }

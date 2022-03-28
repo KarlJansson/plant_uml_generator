@@ -5,4 +5,5 @@
 struct ClassDeclaration {
   std::string class_name;
   std::string type;
+  std::string tag;
 };

@@ -1,5 +1,6 @@
 #include "argument_parser.h"
 
+#include <file_system_utility.hpp>
 #include <filesystem>
 #include <typeindex>
 #include <vector>
@@ -18,6 +19,8 @@ void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   auto& dir_list = ent_mgr.AddComponent<DirectoryList>();
   auto& ignore_patterns = ent_mgr.AddComponent<IgnorePatterns>();
   auto& settings = ent_mgr.AddComponent<Settings>();
+
+  ReadConfigFile(ent_mgr, ignore_patterns.tag_patterns);
 
   std::unordered_map<std::string, std::function<void(const std::string&)>>
       command_table{
@@ -116,3 +119,16 @@ void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
 }
 
 std::vector<std::type_index> ArgumentParser::Dependencies() { return {}; }
+
+void ArgumentParser::ReadConfigFile(
+    EntityManager_t& ent_mgr,
+    std::vector<std::pair<std::string, std::string>>& patterns) {
+  std::ifstream in("./.plant_uml_generator_config");
+  if (!in.fail()) {
+    std::string line;
+    while (std::getline(in, line))
+      if (line.find(':') != std::string::npos)
+        patterns.emplace_back(line.substr(0, line.find(':')),
+                              line.substr(line.find(':') + 1));
+  }
+}

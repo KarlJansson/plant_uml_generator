@@ -1,9 +1,9 @@
 #pragma once
 
 #include <entity_manager.h>
-using namespace ecss;
-
 #include <system_manager.h>
+
+using namespace ecss;
 
 class ModelExporter {
  public:
