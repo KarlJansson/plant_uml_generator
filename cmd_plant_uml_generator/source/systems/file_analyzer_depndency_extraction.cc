@@ -14,6 +14,10 @@
 
 void FileAnalyzerDependencyExtraction::Init() {}
 
+std::vector<std::type_index> FileAnalyzerDependencyExtraction::Dependencies() {
+  return {};
+}
+
 void FileAnalyzerDependencyExtraction::Step(EntityManager_t& ent_mgr,
                                             SystemManager_t& sys_mgr) {
   auto settings = ent_mgr.ComponentR<Settings>();
@@ -60,8 +64,4 @@ void FileAnalyzerDependencyExtraction::Step(EntityManager_t& ent_mgr,
     sys_mgr.AddSystem<ModelExporter>();
   else
     sys_mgr.AddSystem<PlantUmlPrinter>();
-}
-
-std::vector<std::type_index> FileAnalyzerDependencyExtraction::Dependencies() {
-  return {};
 }

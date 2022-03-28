@@ -14,8 +14,8 @@ using namespace ecss;
 class PlantUmlPrinter {
  public:
   void Init();
-  void Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr);
   std::vector<std::type_index> Dependencies();
+  void Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr);
 
  private:
   template <typename Dep>

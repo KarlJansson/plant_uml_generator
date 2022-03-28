@@ -12,6 +12,8 @@ using sf = Settings::Flag;
 
 void PlantUmlPrinter::Init() {}
 
+std::vector<std::type_index> PlantUmlPrinter::Dependencies() { return {}; }
+
 void PlantUmlPrinter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   std::string header =
       "@startuml\n"
@@ -98,8 +100,6 @@ void PlantUmlPrinter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
 
   sys_mgr.RemoveSystem<PlantUmlPrinter>();
 }
-
-std::vector<std::type_index> PlantUmlPrinter::Dependencies() { return {}; }
 
 template <typename Dep>
 void PlantUmlPrinter::Crawl(

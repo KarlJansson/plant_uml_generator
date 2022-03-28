@@ -15,6 +15,8 @@
 
 void ArgumentParser::Init() {}
 
+std::vector<std::type_index> ArgumentParser::Dependencies() { return {}; }
+
 void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   auto& dir_list = ent_mgr.AddComponent<DirectoryList>();
   auto& ignore_patterns = ent_mgr.AddComponent<IgnorePatterns>();
@@ -117,8 +119,6 @@ void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
     sys_mgr.AddSystem<DirectoryCrawler>();
   sys_mgr.RemoveSystem<ArgumentParser>();
 }
-
-std::vector<std::type_index> ArgumentParser::Dependencies() { return {}; }
 
 void ArgumentParser::ReadConfigFile(
     EntityManager_t& ent_mgr,

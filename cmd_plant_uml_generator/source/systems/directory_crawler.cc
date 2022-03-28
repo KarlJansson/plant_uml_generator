@@ -9,6 +9,8 @@
 
 void DirectoryCrawler::Init() {}
 
+std::vector<std::type_index> DirectoryCrawler::Dependencies() { return {}; }
+
 void DirectoryCrawler::Step(EntityManager_t& ent_mgr,
                             SystemManager_t& sys_mgr) {
   auto patterns = ent_mgr.ComponentR<IgnorePatterns>();
@@ -45,5 +47,3 @@ void DirectoryCrawler::Step(EntityManager_t& ent_mgr,
   sys_mgr.RemoveSystem<DirectoryCrawler>();
   sys_mgr.AddSystem<FileAnalyzerTypeExtraction>();
 }
-
-std::vector<std::type_index> DirectoryCrawler::Dependencies() { return {}; }

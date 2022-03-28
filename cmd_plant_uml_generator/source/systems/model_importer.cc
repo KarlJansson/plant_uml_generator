@@ -10,6 +10,8 @@
 
 void ModelImporter::Init() {}
 
+std::vector<std::type_index> ModelImporter::Dependencies() { return {}; }
+
 void ModelImporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   auto settings = ent_mgr.ComponentR<Settings>();
   std::ifstream in(settings->import_path);
@@ -74,5 +76,3 @@ void ModelImporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   sys_mgr.RemoveSystem<ModelImporter>();
   sys_mgr.AddSystem<PlantUmlPrinter>();
 }
-
-std::vector<std::type_index> ModelImporter::Dependencies() { return {}; }

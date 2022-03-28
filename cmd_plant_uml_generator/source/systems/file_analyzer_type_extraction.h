@@ -13,8 +13,8 @@ using namespace ecss;
 class FileAnalyzerTypeExtraction {
  public:
   void Init();
-  void Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr);
   std::vector<std::type_index> Dependencies();
+  void Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr);
 
  private:
   bool IsValid(const std::string& str, std::set<std::string>& found);

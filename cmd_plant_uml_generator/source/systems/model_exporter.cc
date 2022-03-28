@@ -12,6 +12,8 @@
 
 void ModelExporter::Init() {}
 
+std::vector<std::type_index> ModelExporter::Dependencies() { return {}; }
+
 void ModelExporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   std::vector<std::string> class_declarations;
   std::vector<std::string> type_declarations;
@@ -91,5 +93,3 @@ void ModelExporter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   exit_code = 0;
   sys_mgr.RemoveSystem<ModelExporter>();
 }
-
-std::vector<std::type_index> ModelExporter::Dependencies() { return {}; }

@@ -11,6 +11,10 @@
 
 void FileAnalyzerTypeExtraction::Init() {}
 
+std::vector<std::type_index> FileAnalyzerTypeExtraction::Dependencies() {
+  return {};
+}
+
 void FileAnalyzerTypeExtraction::Step(EntityManager_t& ent_mgr,
                                       SystemManager_t& sys_mgr) {
   auto ignore_patterns = ent_mgr.ComponentR<IgnorePatterns>();
@@ -47,10 +51,6 @@ void FileAnalyzerTypeExtraction::Step(EntityManager_t& ent_mgr,
 
   sys_mgr.RemoveSystem<FileAnalyzerTypeExtraction>();
   sys_mgr.AddSystem<FileAnalyzerDependencyExtraction>();
-}
-
-std::vector<std::type_index> FileAnalyzerTypeExtraction::Dependencies() {
-  return {};
 }
 
 bool FileAnalyzerTypeExtraction::IsValid(const std::string& str,
