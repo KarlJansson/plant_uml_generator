@@ -17,5 +17,6 @@ class ArgumentParser {
  private:
   void ReadConfigFile(
       EntityManager_t& ent_mgr,
-      std::vector<std::pair<std::string, std::string>>& patterns);
+      std::vector<std::pair<std::string, std::string>>& patterns,
+      std::vector<std::string>& header);
 };

@@ -22,7 +22,8 @@ void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   auto& ignore_patterns = ent_mgr.AddComponent<IgnorePatterns>();
   auto& settings = ent_mgr.AddComponent<Settings>();
 
-  ReadConfigFile(ent_mgr, ignore_patterns.tag_patterns);
+  ReadConfigFile(ent_mgr, ignore_patterns.tag_patterns,
+                 ignore_patterns.header_lines);
 
   std::unordered_map<std::string, std::function<void(const std::string&)>>
       command_table{
@@ -122,7 +123,8 @@ void ArgumentParser::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
 
 void ArgumentParser::ReadConfigFile(
     EntityManager_t& ent_mgr,
-    std::vector<std::pair<std::string, std::string>>& patterns) {
+    std::vector<std::pair<std::string, std::string>>& patterns,
+    std::vector<std::string>& header) {
   std::ifstream in("./.plant_uml_generator_config");
   if (!in.fail()) {
     std::string line;
@@ -130,5 +132,7 @@ void ArgumentParser::ReadConfigFile(
       if (line.find(':') != std::string::npos)
         patterns.emplace_back(line.substr(0, line.find(':')),
                               line.substr(line.find(':') + 1));
+      else
+        header.emplace_back(line);
   }
 }

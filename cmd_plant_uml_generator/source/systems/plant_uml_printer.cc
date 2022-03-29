@@ -36,6 +36,8 @@ void PlantUmlPrinter::Step(EntityManager_t& ent_mgr, SystemManager_t& sys_mgr) {
   ignore_patterns_ = ignore_patterns->ignore_patterns;
   stop_patterns_ = ignore_patterns->stop_patterns;
 
+  for (auto& str : ignore_patterns->header_lines) header += str + "\n";
+
   auto dependent_print = [](auto& str1, auto& str2) -> auto {
     return str2 + " ..> " + str1 + "\n";
   };
